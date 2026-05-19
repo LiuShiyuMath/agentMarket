@@ -2,7 +2,27 @@
 
 终端**营销仪表盘**（Rust + [Ratatui](https://ratatui.rs)），把 knowledge-work
 `marketing` 插件（`marketing@knowledge-work-plugins` v1.2.0，通过
-`.claude/settings.json` 在项目级启用）的能力领域可视化呈现。界面为中文。
+`.claude/settings.json` 在项目级启用）的 7 个能力域做成可键盘导航的频道，并用
+这 7 个频道，对 **pitchkit** 与 **AI Love-Lab** 各跑一遍——两次*各自独立*的
+单产品体检（非 A/B 对决）。界面为中文。
+
+## 真实数据，不是演示值
+
+界面里渲染的每一个数字与结论都是**真实数据**，钉在 **2026-05-19 实抓**上：
+
+- pitchkit 的事实来自 GitHub API（`gh api repos/EricSun0218/pitchkit`：
+  metadata / languages / 72 commits / contributors / git trees / contents）。
+- AI Love-Lab 的事实来自对 `https://lovelab.renlab.ai/` 与母公司
+  `renlab.ai` 的 HTTP 实抓（HTML / headers / manifest / robots /
+  Googlebot-UA / `/api*` 404 探测）。
+- 每个频道的结论文本由 minimax（`MiniMax-M2.7-highspeed` via
+  `api.minimaxi.com/anthropic`，`ANTHROPIC_AUTH_TOKEN` 未设置——全程未用
+  Claude OAuth）于 2026-05-19 生成。
+- 「效果分析」频道左侧是 pitchkit **真实 commit/天序列**（`gh api … commits
+  --paginate`，合计 72），不是写死的占位；AI Love-Lab 无公开数据 → 不画图、
+  坦白 N/A。按 `s` 可展开「数据来源」核对每一条出处。
+
+全部源数据固化在 `src/data.rs`（每字段带来源注释）；TUI 只负责渲染，不编造。
 
 ## 运行
 
@@ -12,17 +32,19 @@ cargo run --release
 
 ## 按键
 
-| 按键              | 操作                     |
-| ----------------- | ------------------------ |
-| `↑`/`k`           | 上一个频道               |
-| `↓`/`j`           | 下一个频道               |
-| `Tab`/`Shift+Tab` | 循环切换频道             |
-| `r`               | 刷新（演示用效果序列）   |
-| `q`/`Esc`/`Ctrl-C`| 退出                     |
+| 按键              | 操作                          |
+| ----------------- | ----------------------------- |
+| `↑`/`k`           | 上一个频道                    |
+| `↓`/`j`           | 下一个频道                    |
+| `Tab`/`Shift+Tab` | 循环切换频道                  |
+| `1` / `2`         | 切到产品①pitchkit / ②AI Love-Lab |
+| `p`               | 在两个产品间切换              |
+| `s`               | 展开/收起「数据来源」         |
+| `q`/`Esc`/`Ctrl-C`| 退出                          |
 
 ## 频道 → 插件 skill
 
-每个面板把一个营销能力领域映射到支撑真实工作流的插件 skill：
+每个频道把一个营销能力领域映射到支撑真实工作流的插件 skill：
 
 | 频道       | Skill                                |
 | ---------- | ------------------------------------ |
@@ -33,9 +55,8 @@ cargo run --release
 | 品牌审查   | `brand-review`                       |
 | 竞品分析   | `competitive-brief`                  |
 | 邮件序列   | `email-sequence`                     |
-| 营销汇报   | `talk-markets`                       |
 
-界面指标仅作示意；把每个面板接到对应 skill 即可获得实时数据。
+每个产品都按这 7 个频道各跑一遍，得到一份独立体检；两份之间不互相比较。
 
 ## 营销汇报（talk-markets）
 
