@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<!-- talk-html-meta {"session_id":"PLACEHOLDER","job_dir":null,"branch":null,"prompt_summary":"<≤200 chars: 报告主题 + 受众，如：Q2 付费复盘 → CEO+客户双受众>","origin_prompt":"<verbatim first user message, ≤200 chars>","template":"marketing-report","generated_at":"2026-01-01T00:00:00Z"} -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PLACEHOLDER — 营销汇报</title>
+<!--
+  这是 talk-markets 的「营销汇报」骨架，叠在 talk-html 的结构槽位之上。
+  它只示范槽位，不是视觉成品 —— 每份报告必须按受众重新设计排版与配色
+  （SKILL.md §5；受众矩阵见 references/audiences.md）。
+
+  结构对应 SKILL.md §4 的倒金字塔六段：
+    1 结论一句话  2 背景/问题  3 结果与证据  4 要点拆解
+    5 建议/下一步  6 诚实边界/数据来源（折叠，置底）
+
+  纯 CSS 多受众标签（无 JS）：用 radio + :checked 切换 tab，
+  证据区（block 3）在所有 tab 共享。单受众则删掉 .tm-tabs，直接铺六段。
+  全页 JS 仅允许 talk-html 钦定的两处剪贴板 handler（审计 pill + 继续修改条）。
+-->
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; font-family: "Noto Serif SC", Georgia, serif; line-height: 1.7;
+    max-width: 72ch; padding: 2rem 1.25rem 6rem; margin-inline: auto; }
+
+  /* 1. 结论一句话 —— 受众能复述给 TA 老板的那句 */
+  .tm-lede { font-size: 1.5rem; font-weight: 600; line-height: 1.45; margin: 0 0 1.5rem; }
+  .tm-period { font-size: 0.85rem; opacity: 0.65; letter-spacing: 0.03em; }
+
+  /* KPI 带 —— 首屏唯一的硬指标区，深表下沉到 <details> */
+  .tm-kpis { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1.5rem 0 2rem; }
+  .tm-kpi { flex: 1 1 8rem; border: 1px solid currentColor; border-radius: 10px;
+    padding: 0.9rem 1rem; }
+  .tm-kpi b { display: block; font-size: 1.7rem; line-height: 1.1; }
+  .tm-kpi span { font-size: 0.8rem; opacity: 0.7; }
+  .tm-up::after { content: " ▲"; } .tm-down::after { content: " ▼"; }
+
+  /* 纯 CSS 受众标签（多受众时用；单受众删除整块） */
+  .tm-tabs { margin: 2rem 0; }
+  .tm-tabs > input { position: absolute; opacity: 0; pointer-events: none; }
+  .tm-tablabels { display: flex; flex-wrap: wrap; gap: 0.5rem; border-bottom: 1px solid currentColor; }
+  .tm-tablabels label { padding: 0.4rem 0.9rem; cursor: pointer; opacity: 0.55;
+    border: 1px solid currentColor; border-bottom: none; border-radius: 8px 8px 0 0; }
+  .tm-pane { display: none; padding: 1.25rem 0; }
+  #tm-a:checked ~ .tm-tablabels label[for=tm-a],
+  #tm-b:checked ~ .tm-tablabels label[for=tm-b] { opacity: 1; font-weight: 600; }
+  #tm-a:checked ~ .tm-panes #tm-pane-a,
+  #tm-b:checked ~ .tm-panes #tm-pane-b { display: block; }
+
+  details.tm-honest { margin-top: 3rem; }
+  details.tm-honest summary { cursor: pointer; font-weight: 600; }
+
+  /* talk-html 结构槽位（审计 pill / 继续修改条 / footer）—— 见 skeleton.html */
+  footer.tlh-foot { margin-top: 4rem; padding-top: 1rem; border-top: 1px solid currentColor;
+    font-size: 0.85rem; opacity: 0.7; }
+  footer.tlh-foot button.tlh-copy { font: inherit; color: inherit; background: transparent;
+    border: 1px solid currentColor; border-radius: 5px; padding: 0 6px; cursor: pointer; }
+  .tlh-pill { position: fixed; bottom: 1rem; right: 1rem; font: 11px/1.4 ui-monospace, monospace;
+    background: rgba(0,0,0,0.78); color: #fff; padding: 6px 10px; border-radius: 999px;
+    display: inline-flex; gap: 8px; align-items: center; max-width: 60vw; z-index: 2147483647; }
+  .tlh-pill .tlh-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tlh-pill button { font: inherit; color: #fff; background: transparent;
+    border: 1px solid rgba(255,255,255,0.35); border-radius: 5px; padding: 1px 6px; cursor: pointer; flex: none; }
+  section.tlh-next { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid currentColor; }
+  section.tlh-next label { display: block; font-size: 0.85rem; opacity: 0.7; margin-bottom: 0.5rem; }
+  section.tlh-next .tlh-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  section.tlh-next input { flex: 1 1 16rem; font: inherit; padding: 6px 10px;
+    border: 1px solid currentColor; border-radius: 6px; background: transparent; color: inherit; }
+  section.tlh-next button { font: inherit; color: inherit; background: transparent;
+    border: 1px solid currentColor; border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+  section.tlh-next .tlh-hint { font-size: 0.8rem; opacity: 0.6; margin-top: 0.5rem; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<!-- ===== AGENT: 用真实内容替换标记之间的所有内容（SKILL.md §3 数据必须真实有出处） ===== -->
+
+<p class="tm-period">报告周期：2026 Q2 · 对比 Q1 · 对比计划</p>
+<p class="tm-lede">【block 1 结论一句话】写成「<选定受众>」能一口气复述给 TA 老板的那句话。</p>
+
+<div class="tm-kpis">
+  <div class="tm-kpi"><b class="tm-up">ROI 1.8×</b><span>付费渠道 · vs 0.9× 上季</span></div>
+  <div class="tm-kpi"><b class="tm-down">CAC ¥210</b><span>获客成本 · vs ¥260 上季</span></div>
+  <div class="tm-kpi"><b>+38%</b><span>合格线索 · vs 计划 +25%</span></div>
+</div>
+
+<p>【block 2 背景/问题】用该受众认得出的语言描述要解决的问题或缺口。</p>
+
+<!-- block 3 结果与证据：真实数字 + 出处。若证据是会动的看板，按 talk-html §3.1
+     用 record-to-gif.sh 录真实运行并内嵌 GIF，不要画假图。多受众时此区共享。 -->
+<figure>
+  <figcaption>【block 3】证据图（SVG / 内嵌录屏 GIF）。标注它「排除了什么」，不只是「展示了什么」。</figcaption>
+</figure>
+
+<!-- 多受众标签（单受众请删掉整段 .tm-tabs，直接铺 block 4–5） -->
+<div class="tm-tabs">
+  <input type="radio" name="tm-aud" id="tm-a" checked>
+  <input type="radio" name="tm-aud" id="tm-b">
+  <div class="tm-tablabels">
+    <label for="tm-a">给 CEO 看</label>
+    <label for="tm-b">给客户看</label>
+  </div>
+  <div class="tm-panes">
+    <section class="tm-pane" id="tm-pane-a">
+      <p>【block 4 要点拆解 · CEO 视角】把因果链拆成可核对的几条断言。</p>
+      <p>【block 5 建议/下一步 · CEO 视角】明确要 TA 做的决策/预算/动作 —— 不能只报状态。</p>
+    </section>
+    <section class="tm-pane" id="tm-pane-b">
+      <p>【block 4 · 客户视角】同一批证据，换成「这对你意味着什么」。</p>
+      <p>【block 5 · 客户视角】客户可自行验证的下一步。</p>
+    </section>
+  </div>
+</div>
+
+<details class="tm-honest">
+  <summary>诚实边界 / 数据来源</summary>
+  <p>【block 6】口径、对比基线、未达成项、每个头条数字的来源（marketing skill 产出 / 真实导出 / 录屏运行）。保留但折叠置底。</p>
+</details>
+
+<!-- ===== /end content ===== -->
+
+<!-- 继续修改条（talk-html §5.1，逐字沿用；靠 recall.sh <slug> 重新定位，勿自创路径） -->
+<section class="tlh-next">
+  <label for="tlh-ask">继续修改这页 — 描述要改什么，一键复制续修指令贴进终端</label>
+  <div class="tlh-row">
+    <input id="tlh-ask" type="text" placeholder="例如：再加一个给投资人的 tab / 把 KPI 换成季度趋势">
+    <button onclick="(function(){var v=document.getElementById('tlh-ask').value.trim()||'&lt;在此描述要改什么&gt;';navigator.clipboard&amp;&amp;navigator.clipboard.writeText('claude --resume PLACEHOLDER \x22继续修改我用 talk-html 生成的产物（slug: PLACEHOLDER_SLUG；本地 PLACEHOLDER_LOCAL_PATH；若会话已失效，先跑 bash ~/.agents/skills/talk-html/recall.sh PLACEHOLDER_SLUG 定位它）。修改要求：'+v+'。改完按 talk-html 流程重新发布 gist 并打印四个 URL。\x22')})()">复制续修指令</button>
+  </div>
+  <p class="tlh-hint">把复制到的整行粘贴进运行着 Claude 的终端即可继续修改并重新发布。</p>
+</section>
+
+<footer class="tlh-foot">
+  Made in session “<span title="full session id: PLACEHOLDER">PLACEHOLDER_ORIGIN_PROMPT</span>”
+  · 2026-01-01 · <code>marketing-report</code> template ·
+  <button class="tlh-copy" onclick="navigator.clipboard&amp;&amp;navigator.clipboard.writeText('claude --resume PLACEHOLDER')">↩ copy resume cmd</button>
+</footer>
+
+<div class="tlh-pill" title="session PLACEHOLDER · generated 2026-01-01T00:00:00Z">
+  <span class="tlh-name">PLACEHOLDER_ORIGIN_PROMPT</span>
+  <button onclick="navigator.clipboard&amp;&amp;navigator.clipboard.writeText('PLACEHOLDER')">copy id</button>
+  <button onclick="navigator.clipboard&amp;&amp;navigator.clipboard.writeText('claude --resume PLACEHOLDER')" aria-label="copy claude --resume command">↩ resume</button>
+</div>
+
+</body>
+</html>

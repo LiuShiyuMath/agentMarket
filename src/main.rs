@@ -1,8 +1,8 @@
 //! agentMarket — 终端营销仪表盘。
 //!
 //! 把 knowledge-work `marketing` 插件的能力领域（营销活动、内容创作、SEO、
-//! 效果分析、品牌审查、竞品分析、邮件序列）呈现为可导航的 TUI。此处展示的
-//! 数据仅作示意；每个面板都标注了支撑真实工作流的插件 skill。
+//! 效果分析、品牌审查、竞品分析、邮件序列、营销汇报）呈现为可导航的 TUI。
+//! 此处展示的数据仅作示意；每个面板都标注了支撑真实工作流的插件 skill。
 
 use std::time::Duration;
 
@@ -86,6 +86,16 @@ const SECTIONS: &[Section] = &[
         status: "2 条序列运行中",
         detail: "设计生命周期邮件序列：新用户引导、培育、再激活。把触发条件映射\
                  到每一封邮件，含时机与每步明确的行动号召。",
+        chart: false,
+    },
+    Section {
+        name: "营销汇报",
+        skill: "talk-markets",
+        status: "按受众生成",
+        detail: "把营销成果汇报给特定对象——老板/CEO、直属上级、PM、销售/客户成功、\
+                 媒体记者、客户、投资人、合作伙伴。同一批真实证据按受众重排：单受众\
+                 走倒金字塔，多受众分标签。基于 talk-html，产出自包含中文 HTML 报告\
+                 并发布为可分享链接（gist）。",
         chart: false,
     },
 ];
@@ -374,5 +384,20 @@ mod tests {
         // CJK 名称按显示列宽补齐，ASCII 名称同理对齐。
         assert_eq!(pad_display("营销活动", 12), "营销活动    ");
         assert_eq!(pad_display("SEO 优化", 12), "SEO 优化    ");
+    }
+
+    #[test]
+    fn talk_markets_channel_is_registered_and_renders() {
+        // 营销汇报频道映射到 talk-markets skill；选中后面板应同时显示频道名与 skill。
+        let idx = SECTIONS
+            .iter()
+            .position(|s| s.skill == "talk-markets")
+            .expect("缺少 talk-markets 频道");
+        assert_eq!(SECTIONS[idx].name, "营销汇报");
+        let mut app = App::new();
+        app.list.select(Some(idx));
+        let s = screen(&mut app, 100, 30);
+        assert!(s.contains("营销汇报"), "导航/面板缺少营销汇报频道");
+        assert!(s.contains("talk-markets"), "面板缺少 talk-markets skill 标注");
     }
 }
